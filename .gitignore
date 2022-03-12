@@ -167,7 +167,7 @@ terraform.rc
 data/
 
 # React
-node_modules
+node_modules/
 .pnp
 .pnp.js
 coverage

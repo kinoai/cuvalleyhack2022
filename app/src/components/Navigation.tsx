@@ -13,13 +13,13 @@ function Navigation() {
             <ul className="navbar-nav ml-auto">
               <li className="nav-item">
                 <NavLink className="nav-link" to="/">
-                  Home
+                  Chart
                   <span className="sr-only">(current)</span>
                 </NavLink>
               </li>
               <li className="nav-item">
-                <NavLink className="nav-link" to="/about">
-                  About
+                <NavLink className="nav-link" to="/model">
+                  Model
                 </NavLink>
               </li>
             </ul>

@@ -5,16 +5,16 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import {
   Navigation,
   Footer,
-  Home,
-  About
+  Model,
+  Chart
 } from "./components";
 
 ReactDOM.render(
   <Router>
     <Navigation />
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/about" element={<About />} />
+      <Route path="/" element={<Chart />} />
+      <Route path="/model" element={<Model />} />
     </Routes>
     <Footer />
   </Router>,

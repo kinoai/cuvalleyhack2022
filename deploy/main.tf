@@ -129,3 +129,126 @@ resource "aws_instance" "cuvalley-ec2" {
     Name = var.instance_name
   }
 }
+## FE
+
+
+resource "aws_s3_bucket" "cuvalley-front" {
+    bucket = "cuvalley-front"
+}
+
+resource "aws_s3_bucket_public_access_block" "s3-block" {
+  bucket = aws_s3_bucket.cuvalley-front.id
+
+  block_public_acls         = true
+  block_public_policy       = true
+  restrict_public_buckets   = true
+  ignore_public_acls        = true
+}
+
+
+resource "aws_s3_bucket_cors_configuration" "s3_cors" {
+  bucket = aws_s3_bucket.cuvalley-front.bucket
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["PUT", "POST"]
+    allowed_origins = ["${aws_cloudfront_distribution.front.domain_name}"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
+
+  cors_rule {
+    allowed_methods = ["GET"]
+    allowed_origins = ["*"]
+  }
+}
+
+resource "aws_s3_bucket_website_configuration" "example" {
+  bucket = aws_s3_bucket.cuvalley-front.bucket
+
+  index_document {
+    suffix = "index.html"
+  }
+
+  error_document {
+    key = "index.html"
+  }
+
+  }
+
+
+data "aws_iam_policy_document" "s3_policy" {
+  statement {
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.cuvalley-front.arn}/*"]
+
+    principals {
+      type        = "AWS"
+      identifiers = [aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn]
+    }
+  }
+}
+
+
+
+resource "aws_s3_bucket_policy" "web" {
+  bucket = aws_s3_bucket.cuvalley-front.id
+  policy = data.aws_iam_policy_document.s3_policy.json
+}
+
+
+resource "aws_cloudfront_distribution" "front" {
+  depends_on = [
+    aws_s3_bucket.cuvalley-front
+  ]
+
+  origin {
+    domain_name = aws_s3_bucket.cuvalley-front.bucket_regional_domain_name
+    origin_id   = "s3-cloudfront"
+
+    s3_origin_config {
+      origin_access_identity = aws_cloudfront_origin_access_identity.origin_access_identity.cloudfront_access_identity_path
+    }
+  }
+  enabled             = true
+  is_ipv6_enabled     = true
+  default_root_object = "index.html"
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  default_cache_behavior {
+    allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = "s3-cloudfront"
+
+    forwarded_values {
+      query_string = false
+
+      cookies {
+        forward = "none"
+      }
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+  }
+  price_class = "PriceClass_200"
+
+
+  viewer_certificate {
+    cloudfront_default_certificate = true
+  }
+
+}
+
+resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
+  comment = "access-identity-s3.amazonaws.com"
+}
+
+

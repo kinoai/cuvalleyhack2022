@@ -1,5 +1,7 @@
 # cuvalleyhack2022
-https://cuvalley.com/#zadania
+The task for the hackathon (zadanie 3) was concerned with creating a solution for the *"STWORZENIE SYSTEMU AUTOMATYCZNEJ ESTYMACJI POZIOMU WODY W RZECE" ("Creating a system for automatic water level estimation in rivers")*. The solution was developed by a team of Sekcja Sztucznej Inteligencji members, which were: Krzysztof Kwaśniak, Kacper Włodarczyk. 
+
+The official event webpage: https://cuvalley.com/#zadania
 
 
 ### Docker
@@ -7,8 +9,6 @@ To build and push the image to the ECR repository use the following command:
 ```sh
 ./build_and_push.sh cuvalley-backend latest
 ```
-
-### Terraform
 
 ## Install
 Run the following commands to install Terraform:
